@@ -1,0 +1,20 @@
+---
+interface Props {
+  message?: string;
+}
+const { message = 'Nothing here yet — check back soon.' } = Astro.props;
+---
+
+<p class="empty">{message}</p>
+
+<style>
+  .empty {
+    border: 1px dashed var(--color-line);
+    border-radius: 0.5rem;
+    padding: 2rem 1.25rem;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+</style>

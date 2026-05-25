@@ -1,0 +1,103 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import TagList from '../components/TagList.astro';
+import EmptyState from '../components/EmptyState.astro';
+
+// /work is a filtered view over the `work` collection rendered as inline case
+// studies, sorted newest first. Entries are anchored (#slug) so links_to can
+// point at a specific piece.
+const entries = (await getCollection('work', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const rendered = await Promise.all(
+  entries.map(async (entry) => ({ entry, Content: (await render(entry)).Content })),
+);
+---
+
+<Layout
+  title="Work"
+  description="Things Benja has built — in his own voice, with a skim line up top."
+>
+  <header class="page-head">
+    <h1>Work</h1>
+    <p class="intro">
+      Things I've built, told first-person. Skim the summary, read on if it pulls
+      you.
+    </p>
+  </header>
+
+  {
+    rendered.length === 0 ? (
+      <EmptyState message="No work entries yet — the first case study is on its way." />
+    ) : (
+      <div class="entries">
+        {rendered.map(({ entry, Content }) => (
+          <article id={entry.id} class="entry">
+            <div class="eyebrow role">{entry.data.role}</div>
+            <h2 class="title">
+              {entry.data.repo_url ? (
+                <a href={entry.data.repo_url}>{entry.data.title}</a>
+              ) : (
+                entry.data.title
+              )}
+            </h2>
+            {entry.data.summary && <p class="summary">{entry.data.summary}</p>}
+            <div class="prose body">
+              <Content />
+            </div>
+            <div class="tags">
+              <TagList tags={entry.data.tags} />
+            </div>
+          </article>
+        ))}
+      </div>
+    )
+  }
+</Layout>
+
+<style>
+  .page-head {
+    margin-bottom: 3rem;
+  }
+  .page-head h1 {
+    font-size: 1.875rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .intro {
+    margin-top: 0.5rem;
+    color: var(--color-muted);
+  }
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+  .entry {
+    scroll-margin-top: 6rem;
+  }
+  .title {
+    margin-top: 0.25rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .title a {
+    transition: color 0.15s ease;
+  }
+  .title a:hover {
+    color: var(--color-accent);
+  }
+  .summary {
+    margin-top: 0.5rem;
+    font-size: 1.125rem;
+    color: var(--color-muted);
+  }
+  .body {
+    margin-top: 1rem;
+  }
+  .tags {
+    margin-top: 1rem;
+  }
+</style>

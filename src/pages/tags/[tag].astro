@@ -1,0 +1,56 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Layout from '../../layouts/Layout.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getAllItems, getAllTags } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const tags = await getAllTags();
+  return tags.map(({ tag }) => ({ params: { tag } }));
+}) satisfies GetStaticPaths;
+
+const { tag } = Astro.params;
+const items = (await getAllItems()).filter((item) => item.tags.includes(tag!));
+---
+
+<Layout title={`#${tag}`} description={`Everything tagged #${tag}.`}>
+  <header class="page-head">
+    <a href="/tags" class="eyebrow back">← all tags</a>
+    <h1 class="title">#{tag}</h1>
+    <p class="count">
+      {items.length} {items.length === 1 ? 'thing' : 'things'} across the site.
+    </p>
+  </header>
+
+  <div class="feed">
+    {items.map((item) => <ItemCard item={item} />)}
+  </div>
+</Layout>
+
+<style>
+  .page-head {
+    margin-bottom: 2.5rem;
+  }
+  .back {
+    display: inline-block;
+    transition: color 0.15s ease;
+  }
+  .back:hover {
+    color: var(--color-accent);
+  }
+  .title {
+    margin-top: 0.5rem;
+    font-size: 1.875rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .count {
+    margin-top: 0.5rem;
+    color: var(--color-muted);
+  }
+  .feed {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+</style>

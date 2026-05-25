@@ -1,0 +1,56 @@
+---
+import type { NormalizedItem } from '../lib/content';
+
+interface Props {
+  items: NormalizedItem[];
+}
+const { items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <aside class="related">
+      <h2 class="eyebrow">Related</h2>
+      <ul class="list">
+        {items.map((item) => (
+          <li class="row">
+            <span class="eyebrow kind">{item.kind}</span>
+            <a href={item.url} class="link">
+              {item.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  )
+}
+
+<style>
+  .related {
+    margin-top: 4rem;
+    border-top: 1px solid var(--color-line);
+    padding-top: 1.5rem;
+  }
+  .list {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .kind {
+    flex: none;
+    width: 3rem;
+    color: var(--color-accent);
+  }
+  .link {
+    transition: color 0.15s ease;
+  }
+  .link:hover {
+    color: var(--color-accent);
+  }
+</style>

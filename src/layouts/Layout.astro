@@ -1,0 +1,146 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  // MDX pages pass page frontmatter under this prop when using `layout:`.
+  frontmatter?: { title?: string; description?: string };
+}
+
+const { title, description, frontmatter } = Astro.props;
+const pageTitle = title ?? frontmatter?.title ?? 'benejotad';
+const pageDesc =
+  description ??
+  frontmatter?.description ??
+  'Benja — voice, work, and life, rendered as one interconnected unit.';
+const fullTitle = pageTitle === 'benejotad' ? 'benejotad' : `${pageTitle} · benejotad`;
+
+const nav = [
+  { href: '/', label: 'home' },
+  { href: '/now', label: 'now' },
+  { href: '/work', label: 'work' },
+];
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path === href || path.startsWith(href + '/');
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="benejotad"
+      href="/rss.xml"
+    />
+    <meta name="description" content={pageDesc} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="bar">
+        <a href="/" class="brand">benejotad</a>
+        <nav>
+          {
+            nav.map((item) => (
+              <a
+                href={item.href}
+                class:list={['nav-link', { 'is-active': isActive(item.href) }]}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main class="content">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="bar">
+        <span>© {year} Benja</span>
+        <a href="/rss.xml" class="footer-link">rss</a>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bar {
+    width: 100%;
+    max-width: var(--measure);
+    margin-inline: auto;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .site-header {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .brand {
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  nav {
+    display: flex;
+    gap: 1.25rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+  }
+
+  .nav-link {
+    color: var(--color-muted);
+    transition: color 0.15s ease;
+  }
+  .nav-link:hover,
+  .nav-link.is-active {
+    color: var(--color-accent);
+  }
+
+  .content {
+    width: 100%;
+    max-width: var(--measure);
+    margin-inline: auto;
+    flex: 1;
+    padding: 3rem 1.5rem;
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--color-line);
+  }
+  .site-footer .bar {
+    padding-block: 1.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+  .footer-link {
+    transition: color 0.15s ease;
+  }
+  .footer-link:hover {
+    color: var(--color-accent);
+  }
+</style>

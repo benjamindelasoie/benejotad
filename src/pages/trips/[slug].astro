@@ -1,0 +1,77 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import Layout from '../../layouts/Layout.astro';
+import TagList from '../../components/TagList.astro';
+import RelatedRail from '../../components/RelatedRail.astro';
+import { formatDate, getRelated } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const trips = await getCollection('trips', ({ data }) => !data.draft);
+  return trips.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const related = await getRelated({
+  collection: 'trips',
+  slug: entry.id,
+  tags: entry.data.tags,
+  links_to: entry.data.links_to,
+});
+const dateStr = formatDate(entry.data.date);
+---
+
+<Layout title={entry.data.title} description={entry.data.summary}>
+  <article>
+    <header class="head">
+      <div class="eyebrow meta">
+        <span class="location">{entry.data.location}</span>
+        <span>{entry.data.days} {entry.data.days === 1 ? 'day' : 'days'}</span>
+        <time datetime={entry.data.date.toISOString()}>{dateStr}</time>
+      </div>
+      <h1 class="title">{entry.data.title}</h1>
+      {entry.data.summary && <p class="summary">{entry.data.summary}</p>}
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <div class="tags">
+      <TagList tags={entry.data.tags} />
+    </div>
+  </article>
+
+  <RelatedRail items={related} />
+</Layout>
+
+<style>
+  .head {
+    margin-bottom: 2rem;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .location {
+    color: var(--color-accent);
+  }
+  .title {
+    margin-top: 0.5rem;
+    font-size: 1.875rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    margin-top: 0.5rem;
+    font-size: 1.125rem;
+    color: var(--color-muted);
+  }
+  .tags {
+    margin-top: 2rem;
+  }
+</style>

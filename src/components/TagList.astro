@@ -1,0 +1,46 @@
+---
+// Outer spacing is the caller's concern — wrap <TagList /> in an element with
+// a scoped margin where needed. This component only owns the pills.
+interface Props {
+  tags: string[];
+}
+const { tags } = Astro.props;
+---
+
+{
+  tags.length > 0 && (
+    <ul class="tags">
+      {tags.map((tag) => (
+        <li>
+          <a href={`/tags/${tag}`} class="tag">
+            #{tag}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+  }
+  .tag {
+    display: inline-block;
+    border: 1px solid var(--color-line);
+    border-radius: 9999px;
+    padding: 0.125rem 0.625rem;
+    color: var(--color-muted);
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .tag:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+</style>

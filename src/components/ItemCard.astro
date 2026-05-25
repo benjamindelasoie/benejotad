@@ -1,0 +1,62 @@
+---
+import { formatDate, type NormalizedItem } from '../lib/content';
+import TagList from './TagList.astro';
+
+interface Props {
+  item: NormalizedItem;
+  showTags?: boolean;
+}
+const { item, showTags = true } = Astro.props;
+const dateStr = formatDate(item.date, 'short');
+---
+
+<article class="card">
+  <div class="eyebrow meta">
+    <span class="kind">{item.kind}</span>
+    <time datetime={item.date.toISOString()}>{dateStr}</time>
+  </div>
+
+  <h3 class="title">
+    <a href={item.url}>{item.title}</a>
+  </h3>
+
+  {item.summary && <p class="summary">{item.summary}</p>}
+
+  {
+    showTags && item.tags.length > 0 && (
+      <div class="tags">
+        <TagList tags={item.tags} />
+      </div>
+    )
+  }
+</article>
+
+<style>
+  .meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .kind {
+    color: var(--color-accent);
+  }
+  .title {
+    margin-top: 0.25rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .title a {
+    transition: color 0.15s ease;
+  }
+  .card:hover .title a {
+    color: var(--color-accent);
+  }
+  .summary {
+    margin-top: 0.25rem;
+    color: var(--color-muted);
+  }
+  .tags {
+    margin-top: 0.5rem;
+  }
+</style>
