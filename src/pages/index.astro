@@ -1,80 +1,209 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ItemCard from '../components/ItemCard.astro';
 import EmptyState from '../components/EmptyState.astro';
 import { getAllItems } from '../lib/content';
 
-const recent = (await getAllItems()).slice(0, 6);
+// Home is the catalog: one filterable index of everything personal. The
+// "angles" are filters that dim non-matching rows in place — you always see a
+// facet in the context of the whole. (DESIGN.md: one voice, many angles.)
+const items = await getAllItems();
+const total = items.length;
+
+const ANGLE: Record<string, string> = {
+  trip: 'Trips',
+  work: 'Work',
+  food: 'Food',
+  thought: 'Writing',
+  update: 'Writing',
+};
+const angleOf = (kind: string) => ANGLE[kind] ?? 'Writing';
+
+// Distinct angles present, in a stable display order.
+const order = ['Writing', 'Work', 'Trips', 'Food'];
+const angles = order.filter((a) => items.some((i) => angleOf(i.kind) === a));
+
+const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
+const catNo = (i: number) => String(total - i).padStart(3, '0');
 ---
 
 <Layout>
   <section class="hero">
-    <h1>Benja</h1>
-    <p class="lead">
-      Software and literature, trips and films, things I build and things I think
-      about. I see them as one unit seen from different angles, so this is one
-      site, one voice, many views.
-    </p>
-    <p class="links">
-      Start with <a href="/now">now</a>, browse the <a href="/work">work</a>, or
-      follow a <a href="/tags">thread</a>.
+    <h1 class="wordmark">benejotad</h1>
+    <p class="tagline">
+      One person, many angles. Writing, work, places, films — filed as a single
+      record, not separate rooms.
     </p>
   </section>
 
-  <section>
-    <h2 class="eyebrow section-label">Recent</h2>
-    {
-      recent.length === 0 ? (
-        <EmptyState message="The first posts are on their way." />
-      ) : (
-        <div class="feed">
-          {recent.map((item) => (
-            <ItemCard item={item} />
+  {
+    total === 0 ? (
+      <EmptyState message="The first entries are on their way." />
+    ) : (
+      <>
+        <nav class="angles" aria-label="filter by angle">
+          <button type="button" class="angle is-active" data-angle="all" aria-pressed="true">
+            All
+          </button>
+          {angles.map((a) => (
+            <button type="button" class="angle" data-angle={a} aria-pressed="false">
+              {a}
+            </button>
           ))}
-        </div>
-      )
-    }
-  </section>
+        </nav>
+
+        <ol class="index" aria-label="catalog">
+          {items.map((item, i) => (
+            <li class="row" data-angle={angleOf(item.kind)}>
+              <span class="no">{catNo(i)}</span>
+              <time class="date" datetime={item.date.toISOString()}>
+                {fmtDate(item.date)}
+              </time>
+              <span class="type">{angleOf(item.kind)}</span>
+              <span class="main">
+                <a href={item.url} class="title">
+                  {item.title}
+                </a>
+                {item.tags.length > 0 && (
+                  <span class="refs">{item.tags.map((t) => `#${t}`).join(' ')}</span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </>
+    )
+  }
 </Layout>
 
 <style>
   .hero {
-    margin-bottom: 4rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 2px solid var(--rule);
+    margin-bottom: 0;
   }
-  .hero h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+  .wordmark {
+    font-size: clamp(3rem, 12vw, 7rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
   }
-  .lead {
-    margin-top: 1rem;
-    max-width: 38rem;
-    font-size: 1.125rem;
-    color: var(--color-muted);
-  }
-  .links {
-    margin-top: 0.75rem;
-    max-width: 38rem;
-    color: var(--color-muted);
-  }
-  .links a {
-    color: var(--color-accent);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  .section-label {
-    margin-bottom: 1.5rem;
-  }
-  .feed {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
+  .tagline {
+    margin-top: 1.25rem;
+    max-width: 34rem;
+    font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+    font-weight: 500;
   }
 
-  @media (min-width: 640px) {
-    .hero h1 {
-      font-size: 3rem;
+  .angles {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--rule);
+  }
+  .angle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: transparent;
+    color: var(--muted);
+    border: 0;
+    border-right: 1px solid var(--line);
+    padding: 0.85rem 1.1rem;
+    cursor: pointer;
+  }
+  .angle.is-active {
+    color: var(--ink);
+  }
+  .angle.is-active::before {
+    content: "■ ";
+  }
+
+  .index {
+    border-bottom: 2px solid var(--rule);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 3rem 6.5rem 6rem 1fr;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--line);
+    transition: opacity 0.12s linear;
+  }
+  .no {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .date {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .type {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    text-underline-offset: 4px;
+  }
+  .title:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+  .refs {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .row[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 2.6rem 1fr;
+    }
+    .date,
+    .type {
+      grid-column: 2;
+    }
+    .main {
+      grid-column: 2;
     }
   }
 </style>
+
+<script>
+  // Angle filter: dim non-matching catalog rows in place (the whole life stays
+  // visible, the facet is just emphasized). Progressive enhancement — without
+  // JS the full catalog renders unfiltered.
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.angle');
+  const rows = document.querySelectorAll<HTMLLIElement>('.row');
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const want = btn.dataset.angle;
+      buttons.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle('is-active', active);
+        b.setAttribute('aria-pressed', String(active));
+      });
+      rows.forEach((row) => {
+        const match = want === 'all' || row.dataset.angle === want;
+        row.style.opacity = match ? '1' : '0.22';
+      });
+    });
+  });
+</script>

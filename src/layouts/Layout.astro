@@ -32,6 +32,16 @@ const year = new Date().getFullYear();
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
+    <link
+      href="https://fonts.bunny.net/css?family=jetbrains-mono:400,500&display=swap"
+      rel="stylesheet"
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link
@@ -87,7 +97,7 @@ const year = new Date().getFullYear();
     width: 100%;
     max-width: var(--measure);
     margin-inline: auto;
-    padding: 1.25rem 1.5rem;
+    padding: 1.1rem var(--gutter);
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -95,29 +105,35 @@ const year = new Date().getFullYear();
   }
 
   .site-header {
-    border-bottom: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--rule);
   }
 
   .brand {
-    font-size: 1.125rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
   }
 
   nav {
     display: flex;
     gap: 1.25rem;
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
   }
 
   .nav-link {
-    color: var(--color-muted);
-    transition: color 0.15s ease;
+    color: var(--muted);
+    transition: color 0.12s linear;
   }
-  .nav-link:hover,
+  .nav-link:hover {
+    color: var(--ink);
+  }
   .nav-link.is-active {
-    color: var(--color-accent);
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .content {
@@ -125,22 +141,24 @@ const year = new Date().getFullYear();
     max-width: var(--measure);
     margin-inline: auto;
     flex: 1;
-    padding: 3rem 1.5rem;
+    padding: 3rem var(--gutter) 4rem;
   }
 
   .site-footer {
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid var(--rule);
   }
   .site-footer .bar {
-    padding-block: 1.5rem;
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    color: var(--color-muted);
+    padding-block: 1.25rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
   }
   .footer-link {
-    transition: color 0.15s ease;
+    transition: color 0.12s linear;
   }
   .footer-link:hover {
-    color: var(--color-accent);
+    color: var(--ink);
   }
 </style>

@@ -1,6 +1,9 @@
 ---
 import type { NormalizedItem } from '../lib/content';
 
+// The REFS block — interconnection made structural. A hard-ruled catalog of
+// linked items (explicit links_to first, then shared tags), not a soft
+// "related posts" card. (DESIGN.md.)
 interface Props {
   items: NormalizedItem[];
 }
@@ -9,14 +12,17 @@ const { items } = Astro.props;
 
 {
   items.length > 0 && (
-    <aside class="related">
-      <h2 class="eyebrow">Related</h2>
-      <ul class="list">
+    <aside class="refs">
+      <div class="hd">
+        <span>Also appears in</span>
+        <span>{items.length} refs</span>
+      </div>
+      <ul>
         {items.map((item) => (
-          <li class="row">
-            <span class="eyebrow kind">{item.kind}</span>
-            <a href={item.url} class="link">
-              {item.title}
+          <li>
+            <a href={item.url}>
+              <span class="kind">{item.kind}</span>
+              <span class="title">{item.title}</span>
             </a>
           </li>
         ))}
@@ -26,31 +32,46 @@ const { items } = Astro.props;
 }
 
 <style>
-  .related {
+  .refs {
     margin-top: 4rem;
-    border-top: 1px solid var(--color-line);
-    padding-top: 1.5rem;
+    border: 1px solid var(--rule);
   }
-  .list {
-    margin-top: 0.75rem;
+  .hd {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
   }
-  .row {
-    display: flex;
+  li {
+    border-bottom: 1px solid var(--line);
+  }
+  li:last-child {
+    border-bottom: 0;
+  }
+  a {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 1rem;
     align-items: baseline;
-    gap: 0.75rem;
+    padding: 0.8rem 1rem;
+    transition: background 0.12s linear;
+  }
+  a:hover {
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
   }
   .kind {
-    flex: none;
-    width: 3rem;
-    color: var(--color-accent);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
   }
-  .link {
-    transition: color 0.15s ease;
-  }
-  .link:hover {
-    color: var(--color-accent);
+  .title {
+    font-weight: 600;
   }
 </style>

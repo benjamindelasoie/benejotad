@@ -31,16 +31,15 @@ const { tags } = Astro.props;
   }
   .tag {
     display: inline-block;
-    border: 1px solid var(--color-line);
-    border-radius: 9999px;
-    padding: 0.125rem 0.625rem;
-    color: var(--color-muted);
+    border: 1px solid var(--line);
+    padding: 0.15rem 0.55rem;
+    color: var(--muted);
     transition:
-      color 0.15s ease,
-      border-color 0.15s ease;
+      color 0.12s linear,
+      border-color 0.12s linear;
   }
   .tag:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
+    border-color: var(--ink);
+    color: var(--ink);
   }
 </style>
