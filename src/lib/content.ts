@@ -95,7 +95,14 @@ export async function getAllItems(): Promise<NormalizedItem[]> {
     })),
   ];
 
-  return items.sort((a, b) => b.date.getTime() - a.date.getTime());
+  // Newest first; collection+slug as a stable tiebreaker so items sharing a date
+  // don't reshuffle the homepage and RSS feed between builds.
+  return items.sort(
+    (a, b) =>
+      b.date.getTime() - a.date.getTime() ||
+      a.collection.localeCompare(b.collection) ||
+      a.slug.localeCompare(b.slug),
+  );
 }
 
 /** Distinct tags with their item counts, most-used first. */

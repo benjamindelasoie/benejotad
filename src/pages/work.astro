@@ -8,7 +8,7 @@ import EmptyState from '../components/EmptyState.astro';
 // studies, sorted newest first. Entries are anchored (#slug) so links_to can
 // point at a specific piece.
 const entries = (await getCollection('work', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+  (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.id.localeCompare(b.id),
 );
 
 const rendered = await Promise.all(

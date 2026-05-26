@@ -26,13 +26,31 @@ const baseItem = z.object({
   title: z.string(),
   // Authored as ISO 8601 in frontmatter (e.g. `date: 2026-05-18`), coerced to a
   // Date for sorting/formatting. Keeps the timezone-safe convention from the doc.
-  date: z.coerce.date(),
+  // Constrain the input to string|Date first: bare `z.coerce.date()` would turn
+  // an empty `date:` (null) or a stray number into a silent 1970-01-01.
+  date: z.union([z.string(), z.date()]).pipe(z.coerce.date()),
   draft: z.boolean().default(false),
-  tags: z.array(z.string()).default([]),
+  // Dedupe so duplicate tags can't skew tag counts or related-tag scoring.
+  tags: z
+    .array(z.string())
+    .default([])
+    .transform((tags) => [...new Set(tags)]),
   cover: z.string().optional(),
   // One-line skim summary (used on the landing rail and /work for recruiters).
   summary: z.string().optional(),
-  links_to: z.array(linkRef).default([]),
+  // Dedupe so a repeated target can't crowd out the related rail with copies.
+  links_to: z
+    .array(linkRef)
+    .default([])
+    .transform((links) => {
+      const seen = new Set<string>();
+      return links.filter(({ collection, slug }) => {
+        const key = `${collection}:${slug}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }),
 });
 
 const posts = defineCollection({
@@ -54,7 +72,12 @@ const work = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/work' }),
   schema: baseItem.extend({
     role: z.string(),
-    repo_url: z.url().optional(),
+    // Restrict to http(s) so a content entry can't smuggle a javascript:/data:
+    // scheme into the rendered <a href> on /work. z.url() alone accepts both.
+    repo_url: z
+      .url()
+      .refine((u) => /^https?:\/\//i.test(u), 'repo_url must be an http(s) URL')
+      .optional(),
   }),
 });
 
