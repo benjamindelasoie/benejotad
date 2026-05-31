@@ -80,4 +80,4 @@ All faces are free and self-hostable. Kept deliberately distinct from Benja's ot
 | 2026-05-25 | Theme follows prefers-color-scheme, light baseline | Modern default; avoids a forced binary. |
 
 ## Implementation note
-`src/styles/global.css` currently encodes the superseded V1 look (warm paper, Iowan serif, brick accent). Migrating it to these tokens — and dropping the serif/warm variables — is the first implementation step.
+Migration complete (2026-05-30). `src/styles/global.css` now encodes only the monochrome brutalist tokens; the V1 warm/serif variables and the legacy compatibility aliases (`--color-accent`, `--color-muted`, `--font-sans`, etc.) have been removed. All components and pages reference the real tokens directly. Note: Cabinet Grotesk is loaded at weights `400,500,700,800` only — do not use `600` (it falls back to a substituted weight); titles are `700`.

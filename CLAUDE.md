@@ -10,5 +10,5 @@ explicit user approval. In QA/review, flag any code that doesn't match `DESIGN.m
 
 Current direction: modern brutalist-minimalist — Cabinet Grotesk + JetBrains Mono,
 monochrome (no accent), exposed grid, zero radius, catalog-first home, standalone
-`/work`. Note: `src/styles/global.css` still holds the superseded warm-serif V1
-look and needs migrating to the `DESIGN.md` tokens.
+`/work`. The V1 warm-serif `global.css` has been fully migrated to the
+`DESIGN.md` tokens (2026-05-30); legacy compatibility aliases were removed.

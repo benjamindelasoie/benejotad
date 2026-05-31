@@ -27,17 +27,6 @@
   --measure: 64rem;
   --gutter: clamp(1.25rem, 4vw, 3rem);
 
-  /* Legacy aliases — old token names map onto the new monochrome system so
-   * existing components adopt it without per-file edits. Accent folds to ink
-   * (no hue); old body serif → Cabinet; old label sans → mono. */
-  --color-paper: var(--bg);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-accent: var(--ink);
-  --font-serif: var(--sans);
-  --font-sans: var(--mono);
-
   color-scheme: light;
 }
 

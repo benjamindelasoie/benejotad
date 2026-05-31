@@ -63,12 +63,12 @@ const rendered = await Promise.all(
   }
   .page-head h1 {
     font-size: 1.875rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.01em;
   }
   .intro {
     margin-top: 0.5rem;
-    color: var(--color-muted);
+    color: var(--muted);
   }
   .entries {
     display: flex;
@@ -81,18 +81,17 @@ const rendered = await Promise.all(
   .title {
     margin-top: 0.25rem;
     font-size: 1.5rem;
-    font-weight: 600;
-  }
-  .title a {
-    transition: color 0.15s ease;
+    font-weight: 700;
+    text-underline-offset: 4px;
   }
   .title a:hover {
-    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
   }
   .summary {
     margin-top: 0.5rem;
     font-size: 1.125rem;
-    color: var(--color-muted);
+    color: var(--muted);
   }
   .body {
     margin-top: 1rem;

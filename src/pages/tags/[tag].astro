@@ -33,20 +33,20 @@ const items = (await getAllItems()).filter((item) => item.tags.includes(tag!));
   }
   .back {
     display: inline-block;
-    transition: color 0.15s ease;
+    transition: color 0.12s linear;
   }
   .back:hover {
-    color: var(--color-accent);
+    color: var(--ink);
   }
   .title {
     margin-top: 0.5rem;
     font-size: 1.875rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.01em;
   }
   .count {
     margin-top: 0.5rem;
-    color: var(--color-muted);
+    color: var(--muted);
   }
   .feed {
     display: flex;
