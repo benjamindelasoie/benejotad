@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import EmptyState from '../components/EmptyState.astro';
-import { getAllItems } from '../lib/content';
+import { getAllItems, angleOf, ANGLES } from '../lib/content';
 
 // Home is the catalog: one filterable index of everything personal. The
 // "angles" are filters that dim non-matching rows in place — you always see a
@@ -9,18 +9,8 @@ import { getAllItems } from '../lib/content';
 const items = await getAllItems();
 const total = items.length;
 
-const ANGLE: Record<string, string> = {
-  trip: 'Trips',
-  work: 'Work',
-  food: 'Food',
-  thought: 'Writing',
-  update: 'Writing',
-};
-const angleOf = (kind: string) => ANGLE[kind] ?? 'Writing';
-
 // Distinct angles present, in a stable display order.
-const order = ['Writing', 'Work', 'Trips', 'Food'];
-const angles = order.filter((a) => items.some((i) => angleOf(i.kind) === a));
+const angles = ANGLES.filter((a) => items.some((i) => angleOf(i.kind) === a));
 
 const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
 const catNo = (i: number) => String(total - i).padStart(3, '0');

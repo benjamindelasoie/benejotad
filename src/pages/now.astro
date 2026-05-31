@@ -1,0 +1,374 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { getAllItems, angleOf } from '../lib/content';
+import * as letterboxd from '../lib/sources/letterboxd';
+import * as github from '../lib/sources/github';
+import * as lastfm from '../lib/sources/lastfm';
+import type { SourceEntry, SourceTag } from '../lib/sources/types';
+
+// /now — a snapshot the system assembles. Three live external sources
+// (Letterboxd diary, GitHub public events, Last.fm scrobbles) plus two
+// in-repo blocks (work collection + cross-collection recency). The sources
+// fetch at build time; failures degrade silently so a flaky third party
+// can't break the page. (DESIGN.md: one voice, many angles.)
+
+const [lb, gh, lf] = await Promise.all([
+  letterboxd.recent(),
+  github.recent(),
+  lastfm.recent(),
+]);
+
+const updated = new Date();
+
+// Hand-curated rows; auto rows fall back to '—' when the source is empty.
+const SOURCE_LABEL: Record<SourceTag, string> = {
+  letterboxd: 'Letterboxd',
+  github: 'GitHub',
+  lastfm: 'Last.fm',
+};
+const headline = (e?: SourceEntry) =>
+  e ? `${e.title}${e.meta ? ' · ' + e.meta : ''}` : '—';
+
+const snapshot = [
+  { label: 'Reading', value: '—', url: undefined as string | undefined },
+  { label: 'Watching', value: headline(lb.entries[0]), url: lb.entries[0]?.url },
+  { label: 'Listening', value: headline(lf.entries[0]), url: lf.entries[0]?.url },
+  { label: 'Coding', value: headline(gh.entries[0]), url: gh.entries[0]?.url },
+  { label: 'Thinking', value: '—', url: undefined },
+];
+
+// Auto — what's actively being built: this site, then the work collection.
+const work = (await getCollection('work', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.id.localeCompare(b.id),
+);
+const building = [
+  {
+    title: 'benejotad',
+    role: 'Creator',
+    summary:
+      'This site — a personal hub where writing, work, and life are filed as one record.',
+    url: '/',
+  },
+  ...work.map((e) => ({
+    title: e.data.title,
+    role: e.data.role,
+    summary: e.data.summary ?? '',
+    url: `/work#${e.id}`,
+  })),
+];
+
+// Auto — out in the wild: merged feed of all external sources, newest first.
+// Cap each source so a chatty one (Last.fm scrobbles fire constantly) can't
+// crowd the others out.
+const PER_SOURCE_CAP = 3;
+const wild: SourceEntry[] = [
+  ...lb.entries.slice(0, PER_SOURCE_CAP),
+  ...gh.entries.slice(0, PER_SOURCE_CAP),
+  ...lf.entries.slice(0, PER_SOURCE_CAP),
+]
+  .sort((a, b) => b.when.getTime() - a.when.getTime())
+  .slice(0, 9);
+
+// Auto — recent items across every collection (the on-site interconnection).
+const lately = (await getAllItems()).slice(0, 6);
+
+const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
+---
+
+<Layout
+  title="Now"
+  description="What Benja is reading, watching, building, and thinking about right now."
+>
+  <header class="head">
+    <h1 class="title">Now</h1>
+    <p class="eyebrow updated">Updated {fmtDate(updated)}</p>
+    <p class="intro">
+      A snapshot of what's filling my days. Borrowed from <a
+        href="https://nownownow.com/about">nownownow.com</a
+      > — the page that answers "what are you focused on at this point in your life?"
+    </p>
+  </header>
+
+  <section class="block">
+    <div class="block-head">
+      <span>Snapshot</span>
+    </div>
+    <dl class="snapshot">
+      {
+        snapshot.map((s) => (
+          <div class="srow">
+            <dt class="label">{s.label}</dt>
+            <dd class:list={['value', { empty: s.value === '—' }]}>
+              {s.url ? (
+                <a href={s.url} class="vlink">
+                  {s.value}
+                </a>
+              ) : (
+                s.value
+              )}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <span>Building</span>
+      <span>{building.length}</span>
+    </div>
+    <ol class="index">
+      {
+        building.map((b) => (
+          <li class="brow">
+            <span class="role">{b.role}</span>
+            <span class="main">
+              <a href={b.url} class="rtitle">
+                {b.title}
+              </a>
+              {b.summary && <span class="summary">{b.summary}</span>}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  {
+    wild.length > 0 && (
+      <section class="block">
+        <div class="block-head">
+          <span>Out in the wild</span>
+          <span>{wild.length}</span>
+        </div>
+        <ol class="index">
+          {wild.map((e) => (
+            <li class="wrow">
+              <span class="src">{SOURCE_LABEL[e.source]}</span>
+              <time class="date" datetime={e.when.toISOString()}>
+                {fmtDate(e.when)}
+              </time>
+              <span class="main">
+                {e.url ? (
+                  <a href={e.url} class="rtitle">
+                    {e.title}
+                  </a>
+                ) : (
+                  <span class="rtitle">{e.title}</span>
+                )}
+                {e.meta && <span class="summary">{e.meta}</span>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+
+  <section class="block">
+    <div class="block-head">
+      <span>Lately on the site</span>
+      <span>{lately.length}</span>
+    </div>
+    <ol class="index">
+      {
+        lately.map((item) => (
+          <li class="lrow">
+            <time class="date" datetime={item.date.toISOString()}>
+              {fmtDate(item.date)}
+            </time>
+            <span class="type">{angleOf(item.kind)}</span>
+            <a href={item.url} class="rtitle">
+              {item.title}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Layout>
+
+<style>
+  .head {
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--rule);
+  }
+  .title {
+    font-size: clamp(2.25rem, 7vw, 3.5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+  .updated {
+    margin-top: 0.75rem;
+  }
+  .intro {
+    margin-top: 1rem;
+    max-width: 36rem;
+    font-weight: 500;
+  }
+  .intro a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .intro a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* ---- shared block scaffold (mono header + hard rule) ---- */
+  .block {
+    border-bottom: 2px solid var(--rule);
+  }
+  .block-head {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.25rem 0 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  /* ---- snapshot: mono-labelled rows ---- */
+  .snapshot {
+    border-top: 1px solid var(--line);
+  }
+  .srow {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .srow:last-child {
+    border-bottom: 0;
+  }
+  .label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+  }
+  .value {
+    font-size: 1.06rem;
+    font-weight: 500;
+  }
+  .value.empty {
+    color: var(--muted);
+  }
+  .vlink {
+    text-underline-offset: 3px;
+  }
+  .vlink:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  /* ---- index rows (building / wild / lately) ---- */
+  .index {
+    border-top: 1px solid var(--line);
+  }
+  .brow,
+  .wrow,
+  .lrow {
+    border-bottom: 1px solid var(--line);
+    align-items: baseline;
+    gap: 1rem;
+  }
+  .brow:last-child,
+  .wrow:last-child,
+  .lrow:last-child {
+    border-bottom: 0;
+  }
+
+  .brow {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    padding: 1.1rem 0;
+  }
+  .role {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .summary {
+    color: var(--muted);
+  }
+
+  .wrow {
+    display: grid;
+    grid-template-columns: 6rem 6.5rem 1fr;
+    padding: 1rem 0;
+  }
+  .src {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .lrow {
+    display: grid;
+    grid-template-columns: 6.5rem 6rem 1fr;
+    padding: 1rem 0;
+  }
+  .date {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .type {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .rtitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    text-underline-offset: 4px;
+  }
+  a.rtitle:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .srow {
+      grid-template-columns: 7rem 1fr;
+    }
+    .brow {
+      grid-template-columns: 5rem 1fr;
+    }
+    .wrow,
+    .lrow {
+      grid-template-columns: 2.6rem 1fr;
+    }
+    .wrow .src,
+    .wrow .date,
+    .wrow .main,
+    .lrow .date,
+    .lrow .type,
+    .lrow .rtitle {
+      grid-column: 2;
+    }
+  }
+</style>

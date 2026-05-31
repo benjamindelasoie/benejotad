@@ -41,6 +41,26 @@ export function formatDate(date: Date, month: 'short' | 'long' = 'long'): string
   });
 }
 
+/**
+ * The home catalog's facets ("angles"), in stable display order. The home page
+ * filters by these; /now reuses the same labels so an item reads the same
+ * wherever it surfaces.
+ */
+export const ANGLES = ['Writing', 'Work', 'Trips', 'Food'] as const;
+
+const ANGLE_BY_KIND: Record<string, string> = {
+  trip: 'Trips',
+  work: 'Work',
+  food: 'Food',
+  thought: 'Writing',
+  update: 'Writing',
+};
+
+/** Map a raw item `kind` to its display "angle". Unknowns read as Writing. */
+export function angleOf(kind: string): string {
+  return ANGLE_BY_KIND[kind] ?? 'Writing';
+}
+
 function urlFor(collection: Linkable, slug: string): string {
   switch (collection) {
     case 'posts':
