@@ -5,18 +5,21 @@ import { getAllItems, angleOf } from '../lib/content';
 import * as letterboxd from '../lib/sources/letterboxd';
 import * as github from '../lib/sources/github';
 import * as lastfm from '../lib/sources/lastfm';
+import * as hardcover from '../lib/sources/hardcover';
 import type { SourceEntry, SourceTag } from '../lib/sources/types';
 
-// /now — a snapshot the system assembles. Three live external sources
-// (Letterboxd diary, GitHub public events, Last.fm scrobbles) plus two
-// in-repo blocks (work collection + cross-collection recency). The sources
-// fetch at build time; failures degrade silently so a flaky third party
-// can't break the page. (DESIGN.md: one voice, many angles.)
+// /now — a snapshot the system assembles. Four live external sources
+// (Letterboxd diary, GitHub public events, Last.fm scrobbles, Hardcover
+// shelf) plus two in-repo blocks (work collection + cross-collection
+// recency). The sources fetch at build time; failures degrade silently
+// so a flaky third party can't break the page. (DESIGN.md: one voice,
+// many angles.)
 
-const [lb, gh, lf] = await Promise.all([
+const [lb, gh, lf, hc] = await Promise.all([
   letterboxd.recent(),
   github.recent(),
   lastfm.recent(),
+  hardcover.recent(),
 ]);
 
 const updated = new Date();
@@ -26,16 +29,17 @@ const SOURCE_LABEL: Record<SourceTag, string> = {
   letterboxd: 'Letterboxd',
   github: 'GitHub',
   lastfm: 'Last.fm',
+  hardcover: 'Hardcover',
 };
 const headline = (e?: SourceEntry) =>
   e ? `${e.title}${e.meta ? ' · ' + e.meta : ''}` : '—';
 
 const snapshot = [
-  { label: 'Reading', value: '—', url: undefined as string | undefined },
+  { label: 'Reading', value: headline(hc.entries[0]), url: hc.entries[0]?.url },
   { label: 'Watching', value: headline(lb.entries[0]), url: lb.entries[0]?.url },
   { label: 'Listening', value: headline(lf.entries[0]), url: lf.entries[0]?.url },
   { label: 'Coding', value: headline(gh.entries[0]), url: gh.entries[0]?.url },
-  { label: 'Thinking', value: '—', url: undefined },
+  { label: 'Thinking', value: '—', url: undefined as string | undefined },
 ];
 
 // Auto — what's actively being built: this site, then the work collection.
@@ -66,9 +70,10 @@ const wild: SourceEntry[] = [
   ...lb.entries.slice(0, PER_SOURCE_CAP),
   ...gh.entries.slice(0, PER_SOURCE_CAP),
   ...lf.entries.slice(0, PER_SOURCE_CAP),
+  ...hc.entries.slice(0, PER_SOURCE_CAP),
 ]
   .sort((a, b) => b.when.getTime() - a.when.getTime())
-  .slice(0, 9);
+  .slice(0, 12);
 
 // Auto — recent items across every collection (the on-site interconnection).
 const lately = (await getAllItems()).slice(0, 6);

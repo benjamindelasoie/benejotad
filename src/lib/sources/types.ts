@@ -5,7 +5,7 @@
  * breaks the page.
  */
 
-export type SourceTag = 'github' | 'letterboxd' | 'lastfm';
+export type SourceTag = 'github' | 'letterboxd' | 'lastfm' | 'hardcover';
 
 export interface SourceEntry {
   source: SourceTag;

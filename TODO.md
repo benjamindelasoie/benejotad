@@ -9,14 +9,14 @@ Open threads — current as of 2026-05-31.
   day so Letterboxd / GitHub / Last.fm stay current without manual
   deploys.
 - [ ] **Preview env vars (`LETTERBOXD_USER`, `GITHUB_USER`,
-  `LASTFM_USER`).** Production vars are set; Preview adds via
-  `echo … | vercel env add … preview` failed silently (CLI wants the
-  non-prompting form). Branch deploys will render the empty-state
-  `/now` until these land. Try `vercel env add --force` or paste in
-  the Vercel dashboard.
-- [ ] **Reading row.** Either edit `snapshot` in `src/pages/now.astro`
-  manually, or land the `books` MDX collection (already stubbed in
-  `src/content.config.ts` as the V1.5 plan) and wire it as a source.
+  `LASTFM_USER`, `HARDCOVER_USER`, `HARDCOVER_TOKEN`).** Production
+  vars are set; Preview adds via `echo … | vercel env add … preview`
+  failed silently (CLI wants the non-prompting form). Branch deploys
+  will render the empty-state `/now` until these land. Try
+  `vercel env add --force` or paste in the Vercel dashboard.
+- [x] ~~**Reading row.**~~ Wired to Hardcover (2026-06-01) via
+  `src/lib/sources/hardcover.ts`. Currently-reading + recently-finished
+  shelf via GraphQL `me { user_books }` query.
 - [ ] **Thinking row.** Manual for now. Consider an Are.na source —
   public API + RSS per channel.
 - [ ] **Moving row.** Removed from the Snapshot block; add back when a
