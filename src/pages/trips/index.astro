@@ -135,21 +135,25 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
       <h2 class="sec-title">Trip log</h2>
       <span>{trips.length}</span>
     </div>
-    <ol class="index">
-      {
-        trips.map((t) => (
-          <li class="row">
-            <time class="date" datetime={t.data.date.toISOString()}>
-              {fmtDate(t.data.date)}
-            </time>
-            <span class="loc">{t.data.location}</span>
-            <a class="rtitle" href={`/trips/${t.id}`}>
-              {t.data.title}
-            </a>
-          </li>
-        ))
-      }
-    </ol>
+    {
+      trips.length > 0 ? (
+        <ol class="index">
+          {trips.map((t) => (
+            <li class="row">
+              <time class="date" datetime={t.data.date.toISOString()}>
+                {fmtDate(t.data.date)}
+              </time>
+              <span class="loc">{t.data.location}</span>
+              <a class="rtitle" href={`/trips/${t.id}`}>
+                {t.data.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p class="empty">No trips written up yet — the map is the record for now.</p>
+      )
+    }
   </section>
 </Layout>
 
@@ -320,6 +324,12 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   /* ---- trip log (catalog rows) ---- */
   .index {
     border-top: 1px solid var(--line);
+  }
+  .empty {
+    border-top: 1px solid var(--line);
+    padding: 1.1rem 0;
+    color: var(--muted);
+    font-weight: 500;
   }
   .row {
     display: grid;
