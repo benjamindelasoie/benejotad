@@ -1,0 +1,36 @@
+name: Daily rebuild
+
+# benejotad is a static site whose content is fetched at BUILD time (the /now
+# feeds — Letterboxd, GitHub, Last.fm, Hardcover — and the /work commit graphs).
+# Without a rebuild that data goes stale, and /now in particular loses its point.
+# This job triggers a fresh Vercel deployment once a day via a Deploy Hook, which
+# re-runs the build and re-fetches everything. Cost: ~1 build-minute/day, no
+# serverless compute (the site stays fully static).
+
+on:
+  schedule:
+    # 09:00 UTC = 06:00 in Argentina (UTC-3). GitHub cron is best-effort and may
+    # lag a few minutes under load. Edit this line to change frequency/time.
+    - cron: "0 9 * * *"
+  workflow_dispatch: {} # also lets you trigger a rebuild by hand from the Actions tab
+
+# Don't pile up overlapping deploys if a run is delayed.
+concurrency:
+  group: daily-rebuild
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy hook
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::warning::VERCEL_DEPLOY_HOOK secret is not set yet — skipping."
+            echo "Add it in repo Settings → Secrets and variables → Actions."
+            exit 0
+          fi
+          curl -fsS -X POST "$HOOK" > /dev/null
+          echo "Triggered a Vercel rebuild."
