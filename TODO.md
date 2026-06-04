@@ -1,13 +1,13 @@
 # TODO
 
-Open threads — current as of 2026-05-31.
+Open threads — current as of 2026-06-04.
 
 ## /now — pending
 
-- [ ] **Vercel cron for daily refresh.** `/now` data refreshes only on git
-  push today. Add a Deploy Hook + a Vercel Cron Job that pings it once a
-  day so Letterboxd / GitHub / Last.fm stay current without manual
-  deploys.
+- [x] ~~**Daily refresh.**~~ Done (2026-06-04). GitHub Action
+  (`.github/workflows/daily-rebuild.yml`) POSTs a Vercel Deploy Hook once a
+  day (09:00 UTC) so `/now` + the `/work` commit graphs stay current.
+  Secret `VERCEL_DEPLOY_HOOK` is set.
 - [ ] **Preview env vars (`LETTERBOXD_USER`, `GITHUB_USER`,
   `LASTFM_USER`, `HARDCOVER_USER`, `HARDCOVER_TOKEN`).** Production
   vars are set; Preview adds via `echo … | vercel env add … preview`
@@ -28,9 +28,9 @@ Open threads — current as of 2026-05-31.
 
 ## /work — pending
 
-- [ ] **Real `repo_url`s.** Both work entries (`afiche.mdx`,
-  `camusean.mdx`) have placeholder `https://github.com/`. Point at the
-  actual repos.
+- [x] ~~**Real `repo_url`s.**~~ Done (2026-06-04). Point at
+  `benjamindelasoie/afiche` and `/camusean`; concept bodies rewritten, and
+  each entry now shows a build-time commit graph + recent-commits log.
 - [ ] **Recruiter-facing surface.** `DESIGN.md` describes `/work` as a
   standalone shareable portfolio with skim summaries, CV, and case
   studies. Current page is functional but plain. Pass two: flesh out
@@ -44,6 +44,12 @@ Open threads — current as of 2026-05-31.
 - [ ] **`movies` collection (V2).** Letterboxd RSS auto-pull, separate
   from the live `/now` Watching row. Lets films become first-class
   catalog rows on the home index, with cross-collection links.
+- [ ] **`robots.txt`.** Site is public (benejotad.xyz) but has no
+  `robots.txt`. Add one allowing crawlers and pointing at the sitemap
+  (`https://benejotad.xyz/sitemap-index.xml`).
+- [ ] **Write the "Why this site exists" post.** The placeholder thesis
+  post was removed (2026-06-04) to rewrite from scratch. `src/content/posts/`
+  is empty and ready (`.gitkeep` holds the collection dir).
 - [ ] **R3F memorabilia wall (post-V1).** Per `CLAUDE.md`. Deferred.
 - [ ] **`ProseLayout.astro` is orphaned.** Now-only consumer
   (`now.mdx`) is gone. Remove it, or keep it as a general MDX utility
