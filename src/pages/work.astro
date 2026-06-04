@@ -3,17 +3,48 @@ import { getCollection, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import TagList from '../components/TagList.astro';
 import EmptyState from '../components/EmptyState.astro';
+import { repoActivity } from '../lib/sources/repo-commits';
 
 // /work is a filtered view over the `work` collection rendered as inline case
 // studies, sorted newest first. Entries are anchored (#slug) so links_to can
-// point at a specific piece.
+// point at a specific piece. Each entry with a repo_url also pulls a build-time
+// commit graph + recent-commits log from GitHub (fail-soft).
 const entries = (await getCollection('work', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.id.localeCompare(b.id),
 );
 
 const rendered = await Promise.all(
-  entries.map(async (entry) => ({ entry, Content: (await render(entry)).Content })),
+  entries.map(async (entry) => ({
+    entry,
+    Content: (await render(entry)).Content,
+    activity: entry.data.repo_url ? await repoActivity(entry.data.repo_url) : null,
+  })),
 );
+
+const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
+// Relative "pushed X ago", computed against build time (a static snapshot).
+function ago(d: Date): string {
+  const s = (Date.now() - d.getTime()) / 1000;
+  if (s < 3600) return `${Math.max(1, Math.round(s / 60))}m ago`;
+  if (s < 86400) return `${Math.round(s / 3600)}h ago`;
+  const days = Math.round(s / 86400);
+  if (days < 14) return `${days}d ago`;
+  if (days < 60) return `${Math.round(days / 7)}w ago`;
+  return `${Math.round(days / 30)}mo ago`;
+}
+
+// Sparkline geometry: thin bars, height ∝ commits in that time-bin.
+const SPARK_W = 132;
+const SPARK_H = 26;
+function sparkBars(bins: number[]) {
+  const max = Math.max(...bins, 1);
+  const slot = SPARK_W / bins.length;
+  const bw = Math.max(slot - 1.5, 1);
+  return bins.map((v, i) => {
+    const h = v > 0 ? Math.max((v / max) * SPARK_H, 1.5) : 0;
+    return { x: i * slot, y: SPARK_H - h, w: bw, h };
+  });
+}
 ---
 
 <Layout
@@ -33,7 +64,7 @@ const rendered = await Promise.all(
       <EmptyState message="No work entries yet — the first case study is on its way." />
     ) : (
       <div class="entries">
-        {rendered.map(({ entry, Content }) => (
+        {rendered.map(({ entry, Content, activity }) => (
           <article id={entry.id} class="entry">
             <div class="eyebrow role">{entry.data.role}</div>
             <h2 class="title">
@@ -47,6 +78,42 @@ const rendered = await Promise.all(
             <div class="prose body">
               <Content />
             </div>
+
+            {activity && (
+              <div class="repo">
+                <div class="pulse">
+                  <svg
+                    class="spark"
+                    viewBox={`0 0 ${SPARK_W} ${SPARK_H}`}
+                    width={SPARK_W}
+                    height={SPARK_H}
+                    aria-label={`Commit activity over the last ${activity.fetched} commits`}
+                    role="img"
+                  >
+                    <line class="spark-base" x1="0" y1={SPARK_H} x2={SPARK_W} y2={SPARK_H} />
+                    {sparkBars(activity.bins).map((b) => (
+                      <rect class="spark-bar" x={b.x} y={b.y} width={b.w} height={b.h} />
+                    ))}
+                  </svg>
+                  <span class="eyebrow pulse-meta">
+                    last {activity.fetched} commits · pushed {ago(activity.lastPush)}
+                  </span>
+                </div>
+                <ul class="commits">
+                  {activity.commits.slice(0, 4).map((c) => (
+                    <li class="commit">
+                      <time class="cdate" datetime={c.date.toISOString()}>
+                        {fmtDate(c.date)}
+                      </time>
+                      <a class="cmsg" href={c.url} title={c.message}>
+                        {c.message}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div class="tags">
               <TagList tags={entry.data.tags} />
             </div>
@@ -96,7 +163,65 @@ const rendered = await Promise.all(
   .body {
     margin-top: 1rem;
   }
+
+  /* ---- repo status: commit sparkline + recent-commits log ---- */
+  .repo {
+    margin-top: 1.5rem;
+  }
+  .pulse {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .spark {
+    display: block;
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+  .spark-base {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .spark-bar {
+    fill: var(--ink);
+    opacity: 0.8;
+  }
+  .pulse-meta {
+    color: var(--muted);
+  }
+
+  .commits {
+    margin-top: 0.85rem;
+    border-top: 1px solid var(--line);
+  }
+  .commit {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: 0.85rem;
+    align-items: baseline;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .cdate {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .cmsg {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-underline-offset: 3px;
+  }
+  .cmsg:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
   .tags {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
   }
 </style>
