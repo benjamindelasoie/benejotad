@@ -7,9 +7,9 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  // TODO: swap for the real domain once chosen (benja.dev? benjadelasoie.com?).
-  // Required by @astrojs/sitemap and the RSS feed to emit absolute URLs.
-  site: 'https://benejotad.example.com',
+  // Public canonical domain (apex). Used by @astrojs/sitemap and the RSS feed
+  // to emit absolute URLs; www.benejotad.xyz redirects here.
+  site: 'https://benejotad.xyz',
 
   integrations: [mdx(), react(), sitemap()],
 });
