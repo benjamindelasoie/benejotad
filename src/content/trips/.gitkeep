@@ -1,0 +1,3 @@
+# Keeps the `trips` content collection's base directory present while it has no
+# entries yet (the /trips maps render without trip posts). Delete once the first
+# real trip lands.
