@@ -49,6 +49,7 @@ All faces are free and self-hostable. Kept deliberately distinct from Benja's ot
 
 ## Layout
 - **Approach:** exposed grid, strictly **left-aligned**, never centered. Structure stays visible via thin hairlines and hard rules.
+  - **Exception — data figures:** a self-contained *figure* (map, chart, globe) may be **centered within its own grid column** when left-aligning it would strand an awkward void beside it. All structural and text elements (section heads, rules, lists, catalog rows) stay left-aligned — only the picture is centered in its frame. (See the `/trips` atlas.)
 - **Border radius:** `0` everywhere. Hard corners.
 - **Shadows:** none. Depth is expressed with rules, not blur.
 - **Max content width:** ~64rem container; `--gutter: clamp(1.25rem, 4vw, 3rem)`.
@@ -80,6 +81,7 @@ All faces are free and self-hostable. Kept deliberately distinct from Benja's ot
 | 2026-05-25 | Theme follows prefers-color-scheme, light baseline | Modern default; avoids a forced binary. |
 | 2026-06-03 | Allow informative visuals (data/maps/diagrams); page is not text-only | Benja likes data-driven imagery like the `/trips` cobe globe — it reads as systematic, not ornamental. Supersedes the original "no imagery-as-decoration" rule. Bar: a visual must carry meaning, not just fill space. |
 | 2026-06-03 | `/trips` globe approved (monochrome cobe, treated as a data object) | Marks countries visited; flat monochrome, no glow, dotted continents read as a map. First instance of the new "informative visuals" allowance. |
+| 2026-06-04 | Data figures may be centered within their grid column | Left-aligning a figure in a much-wider column strands an awkward void; centering reads as intentional. Scoped exception to "never centered" — structure/text stay left-aligned, only the picture centers. (`/trips` maps.) |
 
 ## Implementation note
 Migration complete (2026-05-30). `src/styles/global.css` now encodes only the monochrome brutalist tokens; the V1 warm/serif variables and the legacy compatibility aliases (`--color-accent`, `--color-muted`, `--font-sans`, etc.) have been removed. All components and pages reference the real tokens directly. Note: Cabinet Grotesk is loaded at weights `400,500,700,800` only — do not use `600` (it falls back to a substituted weight); titles are `700`.
