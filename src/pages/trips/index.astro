@@ -169,25 +169,20 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   }
 
   /* ---- the atlas: two paired maps (world + Argentina) ---- */
+  /* Same 2-col grid + gap as .lists below, so the globe sits above the
+     "Countries visited" column and the Argentina map above "In Argentina" —
+     each map aligned to its list. */
   .atlas {
     --viz-h: clamp(240px, 32vw, 400px);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: clamp(1.5rem, 5vw, 3.5rem);
+    align-items: start;
     padding: 2rem 0 2.5rem;
     border-bottom: 2px solid var(--rule);
   }
   .panel {
-    flex: 0 0 auto;
-  }
-  /* Panel widths are chosen so both maps land at the same height (--viz-h):
-     the globe is square, the Argentina map's aspect is 300/470 ≈ 0.638. */
-  .panel.world {
-    width: var(--viz-h);
-  }
-  .panel.arg {
-    width: calc(var(--viz-h) * 0.638);
+    min-width: 0;
   }
   .panel-head {
     display: flex;
@@ -210,13 +205,15 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
     color: inherit;
   }
 
+  /* Height-driven so each map keeps its size inside the wider grid column and
+     left-aligns under its list (not stretched to the full column width). */
   .viz-globe {
-    width: 100%;
-    aspect-ratio: 1 / 1;
+    width: var(--viz-h);
+    height: var(--viz-h);
   }
   .viz-arg {
-    width: 100%;
-    aspect-ratio: 300 / 470;
+    width: calc(var(--viz-h) * 0.638);
+    height: var(--viz-h);
   }
 
   /* ---- the two lists (countries / Argentina spots) ---- */
@@ -356,6 +353,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   }
 
   @media (max-width: 560px) {
+    .atlas,
     .lists {
       grid-template-columns: 1fr;
     }
