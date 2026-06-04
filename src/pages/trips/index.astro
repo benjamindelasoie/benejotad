@@ -183,8 +183,12 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   }
   .panel {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center each map within its column/section */
   }
   .panel-head {
+    align-self: stretch; /* head + its rule still span the full column width */
     display: flex;
     justify-content: space-between;
     padding: 0 0 0.6rem;
@@ -256,10 +260,10 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   }
 
   /* ---- Argentina marker legend ---- */
+  /* Centered as a caption under the (centered) map; content-width so the rows
+     stay left-aligned as a group. */
   .legend {
-    margin-top: 0.85rem;
-    padding-top: 0.7rem;
-    border-top: 1px solid var(--line);
+    margin-top: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
