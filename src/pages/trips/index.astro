@@ -1,0 +1,363 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Globe from '../../components/Globe';
+import ArgentinaMap from '../../components/ArgentinaMap.astro';
+import { places } from '../../data/visited';
+import { argentinaPlaces } from '../../data/argentina-places';
+
+// /trips — the travel section. Two paired data objects: a monochrome cobe globe
+// for the world (countries visited) and a build-time SVG map for the places
+// visited inside Argentina. Both treated as data, not decoration. (DESIGN.md)
+
+const trips = (await getCollection('trips', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.id.localeCompare(b.id),
+);
+
+// World: home base + countries visited.
+const home = places.find((p) => p.home);
+const countries = places.filter((p) => !p.home).sort((a, b) => a.name.localeCompare(b.name));
+const markers = places.map((p) => ({
+  location: p.location,
+  size: p.size ?? (p.home ? 0.065 : 0.04),
+}));
+const count = countries.length;
+
+// Argentina: two anchors (hometown + where he lives now) plus places visited.
+// The hometown is the map's origin point and sits outside the visited count;
+// the place he lives stays in the list (it's also a place on the map).
+const argHome = argentinaPlaces.find((p) => p.role === 'hometown');
+const argLive = argentinaPlaces.find((p) => p.role === 'live');
+const argList = argentinaPlaces
+  .filter((p) => p.role !== 'hometown')
+  .sort((a, b) => a.name.localeCompare(b.name));
+const argCount = argList.length;
+
+const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
+const pad2 = (n: number) => String(n).padStart(2, '0');
+---
+
+<Layout
+  title="Trips"
+  description="The countries Benja has visited, the places within Argentina, and the trips behind them."
+>
+  <header class="head">
+    <h1 class="title">Trips</h1>
+    <p class="eyebrow updated">
+      {count} countries · {argCount} places in Argentina{argHome && (
+        <> · from {argHome.name}</>
+      )}{argLive && <>, now in {argLive.name}</>}
+    </p>
+  </header>
+
+  <section class="atlas">
+    <div class="panel world">
+      <div class="panel-head">
+        <span>The world</span>
+        <span>{pad2(count)}</span>
+      </div>
+      <div class="viz-globe">
+        <Globe client:visible markers={markers} />
+      </div>
+    </div>
+    <div class="panel arg">
+      <div class="panel-head">
+        <span>Argentina</span>
+        <span>{pad2(argCount)}</span>
+      </div>
+      <div class="viz-arg">
+        <ArgentinaMap places={argentinaPlaces} />
+      </div>
+      <ul class="legend">
+        {
+          argLive && (
+            <li>
+              <svg class="sw" viewBox="0 0 14 14" aria-hidden="true">
+                <circle class="sw-ring" cx="7" cy="7" r="6" />
+                <circle class="sw-dot" cx="7" cy="7" r="2.6" />
+              </svg>
+              <span>Now — {argLive.name}</span>
+            </li>
+          )
+        }
+        {
+          argHome && (
+            <li>
+              <svg class="sw" viewBox="0 0 14 14" aria-hidden="true">
+                <circle class="sw-hollow" cx="7" cy="7" r="4.2" />
+              </svg>
+              <span>Home — {argHome.name}</span>
+            </li>
+          )
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="lists">
+    <div class="list">
+      <div class="block-head">
+        <span>Countries visited</span>
+        <span>{count}</span>
+      </div>
+      <ol class="rows">
+        {
+          countries.map((c, i) => (
+            <li class="crow">
+              <span class="cno">{pad2(i + 1)}</span>
+              <span class="cname">{c.name}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <div class="list">
+      <div class="block-head">
+        <span>In Argentina</span>
+        <span>{argCount}</span>
+      </div>
+      <ol class="rows">
+        {
+          argList.map((c, i) => (
+            <li class="crow">
+              <span class="cno">{pad2(i + 1)}</span>
+              <span class="cname">{c.name}</span>
+              {c.role === 'live' && <span class="tag">now</span>}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <span>Trip log</span>
+      <span>{trips.length}</span>
+    </div>
+    <ol class="index">
+      {
+        trips.map((t) => (
+          <li class="row">
+            <time class="date" datetime={t.data.date.toISOString()}>
+              {fmtDate(t.data.date)}
+            </time>
+            <span class="loc">{t.data.location}</span>
+            <a class="rtitle" href={`/trips/${t.id}`}>
+              {t.data.title}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Layout>
+
+<style>
+  .head {
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--rule);
+  }
+  .title {
+    font-size: clamp(2.25rem, 7vw, 3.5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+  .updated {
+    margin-top: 0.75rem;
+  }
+
+  /* ---- the atlas: two paired maps (world + Argentina) ---- */
+  .atlas {
+    --viz-h: clamp(240px, 32vw, 400px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: clamp(1.5rem, 5vw, 3.5rem);
+    padding: 2rem 0 2.5rem;
+    border-bottom: 2px solid var(--rule);
+  }
+  .panel {
+    flex: 0 0 auto;
+  }
+  /* Panel widths are chosen so both maps land at the same height (--viz-h):
+     the globe is square, the Argentina map's aspect is 300/470 ≈ 0.638. */
+  .panel.world {
+    width: var(--viz-h);
+  }
+  .panel.arg {
+    width: calc(var(--viz-h) * 0.638);
+  }
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0 0.6rem;
+    margin-bottom: 0.6rem;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .viz-globe {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+  .viz-arg {
+    width: 100%;
+    aspect-ratio: 300 / 470;
+  }
+
+  /* ---- the two lists (countries / Argentina spots) ---- */
+  .lists {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1.5rem, 5vw, 3.5rem);
+    padding: 1.5rem 0 0.5rem;
+    border-bottom: 2px solid var(--rule);
+  }
+  .rows {
+    border-top: 1px solid var(--line);
+  }
+  .crow {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .cno {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .cname {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    padding: 0.05rem 0.3rem;
+    margin-left: auto;
+  }
+
+  /* ---- Argentina marker legend ---- */
+  .legend {
+    margin-top: 0.85rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .sw {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+  .sw-dot {
+    fill: var(--ink);
+  }
+  .sw-ring {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  .sw-hollow {
+    fill: var(--bg);
+    stroke: var(--ink);
+    stroke-width: 1.8;
+  }
+
+  /* ---- shared block scaffold ---- */
+  .block,
+  .lists {
+    border-bottom: 2px solid var(--rule);
+  }
+  .block-head {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.25rem 0 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .lists .block-head {
+    padding-top: 0;
+  }
+
+  /* ---- trip log (catalog rows) ---- */
+  .index {
+    border-top: 1px solid var(--line);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 6.5rem 10rem 1fr;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .row:last-child {
+    border-bottom: 0;
+  }
+  .date {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .loc {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .rtitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    text-underline-offset: 4px;
+  }
+  a.rtitle:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  @media (max-width: 560px) {
+    .lists {
+      grid-template-columns: 1fr;
+    }
+    .row {
+      grid-template-columns: 5.5rem 1fr;
+    }
+    .loc {
+      display: none;
+    }
+    .rtitle {
+      grid-column: 2;
+    }
+  }
+</style>

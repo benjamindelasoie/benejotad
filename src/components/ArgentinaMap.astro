@@ -1,0 +1,126 @@
+---
+import { geoConicConformal, geoPath, geoContains, geoBounds } from 'd3-geo';
+import argGeo from '../data/argentina.geo.json';
+import type { ArgPlace } from '../data/argentina-places';
+
+interface Props {
+  places: ArgPlace[];
+}
+const { places } = Astro.props;
+
+// Build-time projected SVG — no client JS, no WebGL. The whole map is geometry
+// computed here and emitted as static markup, themed via CSS vars. The dotted
+// fill mirrors the cobe globe's continents so the two read as one instrument.
+//
+// Argentina is tall and narrow; a conic-conformal projection centered on it
+// keeps the shape honest where a plain Mercator would stretch the far south.
+//
+// Boundary data: Natural Earth 1:50m (public domain) via the world-atlas
+// TopoJSON, extracted to GeoJSON at build of src/data/argentina.geo.json. The
+// Malvinas (Falklands geometry) are merged into that FeatureCollection so they
+// render as part of the territory, as on an Argentine map.
+
+// d3 wants [lng, lat]; our data stores [lat, lng].
+const arg = argGeo as unknown as GeoJSON.FeatureCollection;
+const VIEW_W = 300;
+const VIEW_H = 470;
+const PAD = 14;
+
+const projection = geoConicConformal()
+  .parallels([-55, -22])
+  .rotate([65, 0])
+  .fitExtent(
+    [
+      [PAD, PAD],
+      [VIEW_W - PAD, VIEW_H - PAD],
+    ],
+    arg,
+  );
+const outline = geoPath(projection)(arg) ?? '';
+
+// Stipple: walk a lat/lng grid over the bounding box, keep points inside the
+// country, emit each as a zero-length subpath (`M x y h0`). With round line
+// caps the whole field renders as one <path> instead of thousands of nodes.
+const [[west, south], [east, north]] = geoBounds(arg);
+const STEP = 0.5; // degrees
+let stipple = '';
+for (let lat = south; lat <= north; lat += STEP) {
+  for (let lng = west; lng <= east; lng += STEP) {
+    if (geoContains(arg, [lng, lat])) {
+      const p = projection([lng, lat]);
+      if (p) stipple += `M${p[0].toFixed(1)} ${p[1].toFixed(1)}h0`;
+    }
+  }
+}
+
+type PlottedMarker = { name: string; role?: 'hometown' | 'live'; x: number; y: number };
+const markers = places
+  .map((pl) => {
+    const p = projection([pl.location[1], pl.location[0]]);
+    return p ? { name: pl.name, role: pl.role, x: p[0], y: p[1] } : null;
+  })
+  .filter((m): m is PlottedMarker => m !== null)
+  // Anchors (hometown / live) drawn last so their rings sit on top of nearby dots.
+  .sort((a, b) => Number(!!a.role) - Number(!!b.role));
+---
+
+<svg
+  class="amap"
+  viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+  role="img"
+  aria-label="Map of Argentina marking the places Benja has visited"
+>
+  <path class="stipple" d={stipple}></path>
+  <path class="outline" d={outline}></path>
+  {
+    markers.map((m) => (
+      <g class:list={['marker', m.role]}>
+        {m.role === 'live' && <circle class="ring" cx={m.x} cy={m.y} r={7.5} />}
+        <circle
+          class="dot"
+          cx={m.x}
+          cy={m.y}
+          r={m.role === 'live' ? 3.6 : m.role === 'hometown' ? 4.2 : 3.2}
+        />
+        <title>{m.name}</title>
+      </g>
+    ))
+  }
+</svg>
+
+<style>
+  .amap {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .stipple {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    opacity: 0.45;
+  }
+  .outline {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.1;
+    opacity: 0.55;
+  }
+  /* visited spot: a plain filled dot */
+  .marker .dot {
+    fill: var(--ink);
+  }
+  /* current residence (Buenos Aires): a filled dot inside a ring — a locator */
+  .marker.live .ring {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  /* hometown (Colón): an open ring — an origin point */
+  .marker.hometown .dot {
+    fill: var(--bg);
+    stroke: var(--ink);
+    stroke-width: 1.8;
+  }
+</style>

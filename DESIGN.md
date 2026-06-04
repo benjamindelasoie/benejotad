@@ -12,7 +12,7 @@
 
 ## Aesthetic Direction
 - **Direction:** modern brutalist-minimalist — refined Swiss/structural, *not* "neubrutalism" (no thick candy borders, hard drop-shadows, or bright block colors).
-- **Decoration level:** minimal. Type and grid do the work. No imagery-as-decoration, no texture, no ornament.
+- **Decoration level:** restrained, but the page is **not** text-only. Informative visuals earn their place — data, maps, and diagrams that carry meaning (e.g. the `/trips` globe) are welcome and encouraged. What stays out: gratuitous ornament, texture, and imagery-as-filler. Type and grid still carry most of the work; a visual has to *say something* to belong.
 - **Mood:** stark, structural, honest, contemporary. The container does **not** cosplay the writing — the prose is literary, so the design is cold and systematic by contrast.
 - **First-3-seconds target:** "this is one specific mind, presented as a system."
 
@@ -78,6 +78,8 @@ All faces are free and self-hostable. Kept deliberately distinct from Benja's ot
 | 2026-05-25 | Monochrome, no accent color | Chosen live in preview over brick/cobalt; purest, most severe minimal read. |
 | 2026-05-25 | Catalog-first home + standalone /work | "One voice, many angles" as a filterable index; /work split out as a shareable recruiter portfolio. Add more paths over time. |
 | 2026-05-25 | Theme follows prefers-color-scheme, light baseline | Modern default; avoids a forced binary. |
+| 2026-06-03 | Allow informative visuals (data/maps/diagrams); page is not text-only | Benja likes data-driven imagery like the `/trips` cobe globe — it reads as systematic, not ornamental. Supersedes the original "no imagery-as-decoration" rule. Bar: a visual must carry meaning, not just fill space. |
+| 2026-06-03 | `/trips` globe approved (monochrome cobe, treated as a data object) | Marks countries visited; flat monochrome, no glow, dotted continents read as a map. First instance of the new "informative visuals" allowance. |
 
 ## Implementation note
 Migration complete (2026-05-30). `src/styles/global.css` now encodes only the monochrome brutalist tokens; the V1 warm/serif variables and the legacy compatibility aliases (`--color-accent`, `--color-muted`, `--font-sans`, etc.) have been removed. All components and pages reference the real tokens directly. Note: Cabinet Grotesk is loaded at weights `400,500,700,800` only — do not use `600` (it falls back to a substituted weight); titles are `700`.
