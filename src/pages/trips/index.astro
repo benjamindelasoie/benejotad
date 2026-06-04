@@ -53,7 +53,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   <section class="atlas">
     <div class="panel world">
       <div class="panel-head">
-        <span>The world</span>
+        <h2 class="sec-title">The world</h2>
         <span>{pad2(count)}</span>
       </div>
       <div class="viz-globe">
@@ -62,7 +62,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
     </div>
     <div class="panel arg">
       <div class="panel-head">
-        <span>Argentina</span>
+        <h2 class="sec-title">Argentina</h2>
         <span>{pad2(argCount)}</span>
       </div>
       <div class="viz-arg">
@@ -97,7 +97,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   <section class="lists">
     <div class="list">
       <div class="block-head">
-        <span>Countries visited</span>
+        <h2 class="sec-title">Countries visited</h2>
         <span>{count}</span>
       </div>
       <ol class="rows">
@@ -113,7 +113,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
     </div>
     <div class="list">
       <div class="block-head">
-        <span>In Argentina</span>
+        <h2 class="sec-title">In Argentina</h2>
         <span>{argCount}</span>
       </div>
       <ol class="rows">
@@ -132,7 +132,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
 
   <section class="block">
     <div class="block-head">
-      <span>Trip log</span>
+      <h2 class="sec-title">Trip log</h2>
       <span>{trips.length}</span>
     </div>
     <ol class="index">
@@ -201,6 +201,15 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
     letter-spacing: 0.1em;
     color: var(--muted);
   }
+  /* Section labels are real headings (h2) for screen-reader navigation, but
+     inherit the mono head styling so they look identical to the old spans. */
+  .sec-title {
+    font: inherit;
+    letter-spacing: inherit;
+    margin: 0;
+    color: inherit;
+  }
+
   .viz-globe {
     width: 100%;
     aspect-ratio: 1 / 1;
