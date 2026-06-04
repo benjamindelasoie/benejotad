@@ -1,0 +1,2 @@
+# Keeps the `posts` content collection's base directory present while it has no
+# entries yet. Delete this once the first real post lands.
