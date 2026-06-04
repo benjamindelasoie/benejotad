@@ -44,9 +44,10 @@ Open threads — current as of 2026-06-04.
 - [ ] **`movies` collection (V2).** Letterboxd RSS auto-pull, separate
   from the live `/now` Watching row. Lets films become first-class
   catalog rows on the home index, with cross-collection links.
-- [ ] **`robots.txt`.** Site is public (benejotad.xyz) but has no
-  `robots.txt`. Add one allowing crawlers and pointing at the sitemap
-  (`https://benejotad.xyz/sitemap-index.xml`).
+- [x] ~~**`robots.txt`.**~~ Done (2026-06-04). Dynamic endpoint
+  (`src/pages/robots.txt.ts`) allows all crawlers and derives the
+  `Sitemap:` URL from `site` (astro.config.mjs), so it can't drift —
+  emits `https://benejotad.xyz/sitemap-index.xml`.
 - [ ] **Write the "Why this site exists" post.** The placeholder thesis
   post was removed (2026-06-04) to rewrite from scratch. `src/content/posts/`
   is empty and ready (`.gitkeep` holds the collection dir).
