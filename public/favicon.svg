@@ -1,23 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!--
-    benejotad mark: a brutalist lowercase "b" with a square bowl (zero radius,
-    hard corners — DESIGN.md), knocked out of a solid tile. Theme-aware: the
-    tile inverts with prefers-color-scheme so it stays visible on light and dark
-    browser chrome. Built from rects so it's crisp at any size.
-  -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="benejotad">
+  <!-- benejotad "B" mark. Theme-aware: ink tile and paper letter invert under
+       prefers-color-scheme: dark so the mark stays legible on dark chrome. -->
   <style>
-    .tile { fill: #0a0a0a; }
-    .mark { fill: #fafafa; }
+    .tile { fill: #111111; }
+    .mark { fill: #f4f2ec; }
     @media (prefers-color-scheme: dark) {
-      .tile { fill: #fafafa; }
-      .mark { fill: #0a0a0a; }
+      .tile { fill: #f4f2ec; }
+      .mark { fill: #111111; }
     }
   </style>
-  <rect class="tile" width="100" height="100" />
-  <!-- stem -->
-  <rect class="mark" x="26" y="14" width="15" height="72" />
-  <!-- square bowl -->
-  <rect class="mark" x="26" y="40" width="48" height="46" />
-  <!-- counter (hole) -->
-  <rect class="tile" x="47" y="51" width="16" height="24" />
+  <rect class="tile" width="512" height="512"/>
+  <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)">
+    <path class="mark" d="M3027 4878 c149 -163 246 -369 289 -613 24 -137 24 -424 0 -555 -46
+-257 -129 -425 -285 -580 -156 -155 -372 -253 -646 -293 l-90 -14 55 -7 c646
+-90 1026 -424 1144 -1006 41 -201 46 -531 11 -740 -52 -316 -187 -578 -383
+-745 l-54 -45 926 0 926 0 0 2320 0 2320 -966 0 -967 0 40 -42z"/>
+    <path class="mark" d="M810 3870 l0 -630 433 0 c237 0 464 5 502 10 310 45 463 173 512 432
+19 102 13 323 -11 411 -54 197 -178 313 -389 367 -127 32 -259 40 -663 40
+l-384 0 0 -630z"/>
+    <path class="mark" d="M810 1580 l0 -800 430 0 c245 0 473 5 532 11 377 41 562 175 639 466
+27 101 37 363 19 496 -51 375 -244 557 -650 612 -78 11 -218 15 -537 15 l-433
+0 0 -800z"/>
+  </g>
 </svg>
