@@ -82,6 +82,9 @@ const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
   <header class="head">
     <h1 class="title">Now</h1>
     <p class="eyebrow updated">Updated {fmtDate(updated)}</p>
+    <p class="credit">
+      Borrowed from <a href="https://nownownow.com/about">nownownow.com</a>.
+    </p>
   </header>
 
   <section class="block">
@@ -197,6 +200,19 @@ const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
   }
   .updated {
     margin-top: 0.75rem;
+  }
+  /* Source credit only — muted prose, same treatment as /work's intro. */
+  .credit {
+    margin-top: 0.75rem;
+    color: var(--muted);
+  }
+  .credit a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .credit a:hover {
+    text-decoration-thickness: 2px;
   }
 
   /* ---- shared block scaffold (mono header + hard rule) ---- */
