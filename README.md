@@ -1,7 +1,6 @@
 # benejotad
 
-A personal hub where everything is interconnected — voice, work, trips, films,
-and the things I build, rendered as one unit seen from different angles.
+Benja's personal site.
 
 Built on **Astro 6** + **Content Collections** (the Content Layer API) + **MDX**,
 styled with **Astro scoped styles** (plain CSS in per-component `<style>` blocks,
@@ -14,8 +13,7 @@ the repo.
 Every piece of content shares one base shape (`title`, `date`, `tags`,
 `links_to`, …). Pages are *queries* over that shared collection, not bespoke
 templates. Adding a section is a new query; adding a content type is a new
-collection that already plugs into tags and links. See
-`src/content/posts/why-this-site.mdx` for the thesis.
+collection that already plugs into tags and links.
 
 ## Project structure
 
@@ -64,7 +62,7 @@ draft: false              # true hides it everywhere
 ```
 
 `links_to` plus shared tags drive the **Related** rail at the bottom of each
-post and trip — that's the interconnection made visible.
+post and trip.
 
 > Dates: write them as plain ISO dates. They're parsed as UTC and formatted in
 > UTC (`formatDate` in `src/lib/content.ts`) so the displayed day never drifts

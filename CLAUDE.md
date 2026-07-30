@@ -1,7 +1,6 @@
 # benejotad
 
 Personal hub on Astro + Content Collections (R3F memorabilia wall is post-V1).
-Thesis: "everything is interconnected — one voice, many angles."
 
 ## Design System
 Always read `DESIGN.md` before making any visual or UI decision. All typography,

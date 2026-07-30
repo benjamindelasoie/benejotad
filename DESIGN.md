@@ -5,7 +5,7 @@
 > approval. Created by /design-consultation, 2026-05-25.
 
 ## Product Context
-- **What this is:** Benja's personal hub — one person's writing, work, trips, food, films (and later a 3D memorabilia wall) filed as a single record. Thesis: "everything is interconnected."
+- **What this is:** Benja's personal hub — one person's writing, work, trips, food, films (and later a 3D memorabilia wall) filed as a single record.
 - **Who it's for:** Benja first (self-expression); `/work` doubles as a recruiter-facing portfolio.
 - **Space:** indie-web / personal site. Not a SaaS, dashboard, or marketing site.
 - **Memorable thing:** **one voice, many angles.** Every decision serves this.
@@ -60,7 +60,7 @@ All faces are free and self-hostable. Kept deliberately distinct from Benja's ot
 - **Detail routes:** `/trips/[slug]`, `/posts/[slug]`, `/now` persist as deep-link pages.
 - **Progressive:** start with the catalog; split more dedicated paths out of it over time as warranted.
 
-### Interconnection
+### Cross-references
 - **Mono spine:** catalog numbers, dates, and `↗N` cross-reference markers in mono run through everything.
 - **REFS block** replaces the soft "related posts" card: a hard-ruled, mono-labelled block ("Also appears in") listing linked items across collections. Hard edges, no card, no shadow.
 
