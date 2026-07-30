@@ -24,6 +24,17 @@ export interface RepoActivity {
   bins: number[];
 }
 
+/**
+ * Say why the block is being dropped, then drop it. The page degrading in
+ * silence is what makes a missing sparkline read as a rendering bug instead of
+ * what it usually is: a private repo (GitHub answers 404, not 403) or a spent
+ * rate limit. The warning lands in the build log; the page is unaffected.
+ */
+function warn(slug: string, why: string): null {
+  console.warn(`[repo-commits] ${slug}: ${why} — omitting the activity block`);
+  return null;
+}
+
 /** "https://github.com/owner/repo(.git)" -> "owner/repo". */
 function repoSlug(repoUrl: string): string | null {
   const m = repoUrl.match(/github\.com\/([^/]+\/[^/?#]+?)(?:\.git)?\/?$/i);
@@ -35,7 +46,7 @@ export async function repoActivity(
   bins = 24,
 ): Promise<RepoActivity | null> {
   const slug = repoSlug(repoUrl);
-  if (!slug) return null;
+  if (!slug) return warn(repoUrl, 'not a parseable github.com repo URL');
 
   const token = import.meta.env.GITHUB_TOKEN as string | undefined;
   const headers: Record<string, string> = {
@@ -49,9 +60,9 @@ export async function repoActivity(
       `https://api.github.com/repos/${slug}/commits?per_page=100`,
       { headers },
     );
-    if (!res.ok) return null;
+    if (!res.ok) return warn(slug, `HTTP ${res.status}`);
     const list = (await res.json()) as Array<Record<string, any>>;
-    if (!Array.isArray(list) || list.length === 0) return null;
+    if (!Array.isArray(list) || list.length === 0) return warn(slug, 'no commits');
 
     const commits: RepoCommit[] = list
       .map((c) => ({
@@ -61,7 +72,7 @@ export async function repoActivity(
         sha: String(c.sha ?? '').slice(0, 7),
       }))
       .filter((c) => c.message && !Number.isNaN(c.date.getTime()));
-    if (commits.length === 0) return null;
+    if (commits.length === 0) return warn(slug, 'no usable commits');
 
     const lastPush = commits[0].date;
     const oldest = commits[commits.length - 1].date;
@@ -80,7 +91,7 @@ export async function repoActivity(
     }
 
     return { commits, fetched: commits.length, lastPush, bins: counts };
-  } catch {
-    return null;
+  } catch (err) {
+    return warn(slug, err instanceof Error ? err.message : String(err));
   }
 }
