@@ -42,25 +42,19 @@ const snapshot = [
   { label: 'Thinking', value: '—', url: undefined as string | undefined },
 ];
 
-// Auto — what's actively being built: this site, then the work collection.
+// Auto — what's actively being built: the work collection, newest first. This
+// site used to be pinned here as a hardcoded row, from before it had a work
+// entry of its own; keeping that literal after the entry landed rendered
+// benejotad twice. The collection is the only source now.
 const work = (await getCollection('work', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.id.localeCompare(b.id),
 );
-const building = [
-  {
-    title: 'benejotad',
-    role: 'Creator',
-    summary:
-      'This site — a personal hub where writing, work, and life are filed as one record.',
-    url: '/',
-  },
-  ...work.map((e) => ({
-    title: e.data.title,
-    role: e.data.role,
-    summary: e.data.summary ?? '',
-    url: `/work#${e.id}`,
-  })),
-];
+const building = work.map((e) => ({
+  title: e.data.title,
+  role: e.data.role,
+  summary: e.data.summary ?? '',
+  url: `/work#${e.id}`,
+}));
 
 // Auto — out in the wild: merged feed of all external sources, newest first.
 // Cap each source so a chatty one (Last.fm scrobbles fire constantly) can't
@@ -83,16 +77,11 @@ const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
 
 <Layout
   title="Now"
-  description="What Benja is reading, watching, building, and thinking about right now."
+  description="what's going on"
 >
   <header class="head">
     <h1 class="title">Now</h1>
     <p class="eyebrow updated">Updated {fmtDate(updated)}</p>
-    <p class="intro">
-      A snapshot of what's filling my days. Borrowed from <a
-        href="https://nownownow.com/about">nownownow.com</a
-      > — the page that answers "what are you focused on at this point in your life?"
-    </p>
   </header>
 
   <section class="block">
@@ -208,19 +197,6 @@ const fmtDate = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '.');
   }
   .updated {
     margin-top: 0.75rem;
-  }
-  .intro {
-    margin-top: 1rem;
-    max-width: 36rem;
-    font-weight: 500;
-  }
-  .intro a {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
-  }
-  .intro a:hover {
-    text-decoration-thickness: 2px;
   }
 
   /* ---- shared block scaffold (mono header + hard rule) ---- */
