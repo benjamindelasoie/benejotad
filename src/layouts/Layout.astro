@@ -10,10 +10,9 @@ interface Props {
 
 const { title, description, frontmatter } = Astro.props;
 const pageTitle = title ?? frontmatter?.title ?? 'benejotad';
-const pageDesc =
-  description ??
-  frontmatter?.description ??
-  'Benja — voice, work, and life, rendered as one interconnected unit.';
+// No site-wide default: a page either says something specific about itself or
+// ships no description at all. An empty <meta content=""> is worse than none.
+const pageDesc = description ?? frontmatter?.description;
 const fullTitle = pageTitle === 'benejotad' ? 'benejotad' : `${pageTitle} · benejotad`;
 
 const nav = [
@@ -59,7 +58,7 @@ const year = new Date().getFullYear();
       title="benejotad"
       href="/rss.xml"
     />
-    <meta name="description" content={pageDesc} />
+    {pageDesc && <meta name="description" content={pageDesc} />}
     <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>
   </head>
