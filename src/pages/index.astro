@@ -18,10 +18,16 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
 
 <Layout>
   <section class="hero">
-    <h1 class="wordmark">benejotad</h1>
-    <p class="tagline">
-
-    </p>
+    <div class="hero-copy">
+      <p class="eyebrow hero-label"><span class="signal-dot" aria-hidden="true"></span> personal index / {new Date().getFullYear()}</p>
+      <h1 class="wordmark">benejotad</h1>
+      <p class="tagline">Notes, places, projects, and other things worth keeping.</p>
+    </div>
+    <div class="hero-aside" aria-label="site status">
+      <span class="aside-label">STATUS</span>
+      <strong>in motion<span class="cursor" aria-hidden="true">_</span></strong>
+      <span class="aside-detail">{total} entries / updating occasionally</span>
+    </div>
   </section>
 
   {
@@ -31,11 +37,11 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
       <>
         <nav class="angles" aria-label="filter by angle">
           <button type="button" class="angle is-active" data-angle="all" aria-pressed="true">
-            All
+            <span class="angle-marker" aria-hidden="true"></span> All
           </button>
           {angles.map((a) => (
             <button type="button" class="angle" data-angle={a} aria-pressed="false">
-              {a}
+              <span class="angle-marker" aria-hidden="true"></span> {a}
             </button>
           ))}
         </nav>
@@ -66,9 +72,24 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
 
 <style>
   .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 12rem;
+    gap: 2rem;
     padding-bottom: 2.5rem;
     border-bottom: 2px solid var(--rule);
     margin-bottom: 0;
+    position: relative;
+  }
+  .hero-copy { min-width: 0; }
+  .hero-label { margin-bottom: 1.25rem; }
+  .signal-dot {
+    display: inline-block;
+    width: 0.52rem;
+    height: 0.52rem;
+    margin-right: 0.45rem;
+    background: var(--signal);
+    vertical-align: 0.03em;
+    animation: pulse 1.8s ease-in-out infinite;
   }
   .wordmark {
     font-size: clamp(3rem, 12vw, 7rem);
@@ -78,9 +99,33 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
   }
   .tagline {
     margin-top: 1.25rem;
-    max-width: 34rem;
     font-size: clamp(1.05rem, 2.2vw, 1.3rem);
     font-weight: 500;
+    max-width: 26rem;
+  }
+  .hero-aside {
+    align-self: end;
+    border-left: 2px solid var(--signal-cool);
+    padding: 0.35rem 0 0.35rem 1rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .aside-label,
+  .aside-detail {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .hero-aside strong {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .cursor { color: var(--signal); }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
   }
 
   .angles {
@@ -99,12 +144,24 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
     border-right: 1px solid var(--line);
     padding: 0.85rem 1.1rem;
     cursor: pointer;
+    transition: color 0.12s linear, background-color 0.12s linear;
   }
+  .angle:hover { color: var(--ink); background: color-mix(in srgb, var(--signal-lime) 18%, transparent); }
   .angle.is-active {
     color: var(--ink);
+    background: color-mix(in srgb, var(--signal-lime) 22%, transparent);
   }
-  .angle.is-active::before {
-    content: "■ ";
+  .angle-marker {
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.15rem;
+    border: 1px solid currentColor;
+    vertical-align: 0.02em;
+  }
+  .angle.is-active .angle-marker {
+    border-color: var(--signal);
+    background: var(--signal);
   }
 
   .index {
@@ -117,7 +174,12 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
     gap: 1rem;
     padding: 1.15rem 0;
     border-bottom: 1px solid var(--line);
-    transition: opacity 0.12s linear;
+    transition: opacity 0.12s linear, padding-left 0.15s ease-out, border-color 0.15s linear;
+    border-left: 3px solid transparent;
+  }
+  .row:hover {
+    padding-left: 0.75rem;
+    border-left-color: var(--signal);
   }
   .no {
     font-family: var(--mono);
@@ -152,6 +214,8 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
     text-decoration: underline;
     text-decoration-thickness: 2px;
   }
+  .row:nth-child(3n) .title:hover { text-decoration-color: var(--signal-cool); }
+  .row:nth-child(3n + 1) .title:hover { text-decoration-color: var(--signal); }
   .refs {
     font-family: var(--mono);
     font-size: 0.72rem;
@@ -162,6 +226,8 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
   }
 
   @media (max-width: 640px) {
+    .hero { grid-template-columns: 1fr; gap: 1.5rem; }
+    .hero-aside { max-width: 15rem; }
     .row {
       grid-template-columns: 2.6rem 1fr;
     }
@@ -172,6 +238,10 @@ const catNo = (i: number) => String(total - i).padStart(3, '0');
     .main {
       grid-column: 2;
     }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .signal-dot { animation: none; }
+    .row { transition: opacity 0.12s linear; }
   }
 </style>
 

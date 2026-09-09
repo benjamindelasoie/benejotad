@@ -3,7 +3,8 @@
  *
  * Design system: DESIGN.md (modern brutalist-minimalist).
  * Cabinet Grotesk (display + body + UI), JetBrains Mono (the metadata spine),
- * monochrome — NO accent color. Hierarchy rides on weight, hard rules, opacity.
+ * near-monochrome with a small signal palette. Hierarchy still rides on weight,
+ * hard rules, and opacity; color is reserved for live details and interaction.
  * Zero border-radius, no shadows, left-aligned. Light baseline + dark via
  * prefers-color-scheme (hard invert).
  *
@@ -23,6 +24,11 @@
   --line: #e5e5e5; /* hairline */
   --rule: #0a0a0a; /* hard structural rule */
 
+  /* Signal palette — used sparingly, never as a surface wash. */
+  --signal: #ff5a36;
+  --signal-cool: #3558e8;
+  --signal-lime: #b8d936;
+
   /* Container + grid */
   --measure: 64rem;
   --gutter: clamp(1.25rem, 4vw, 3rem);
@@ -37,6 +43,9 @@
     --muted: #8a8a8a;
     --line: #262626;
     --rule: #fafafa;
+    --signal: #ff7657;
+    --signal-cool: #8298ff;
+    --signal-lime: #d1ef4d;
     color-scheme: dark;
   }
 }
@@ -65,7 +74,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 ::selection {
-  background: var(--ink);
+  background: var(--signal);
   color: var(--bg);
 }
 img,

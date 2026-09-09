@@ -28,11 +28,12 @@ All faces are free and self-hostable. Kept deliberately distinct from Benja's ot
 - **Metadata:** mono, 0.72rem, uppercase, letter-spacing 0.08–0.1em.
 
 ## Color
-**Monochrome — no accent color.** Hierarchy rides on weight, hard rules, and opacity. Color never enters; this is the most severe, most minimal read and the chosen one.
+**Near-monochrome with a restrained signal palette.** Hierarchy still rides on weight, hard rules, and opacity; coral, electric blue, and lime only mark live status, filters, and interaction details.
 
 **Light (baseline):**
 - `--bg #fafafa` · `--ink #0a0a0a` · `--muted #737373`
 - `--line #e5e5e5` (hairline) · `--rule #0a0a0a` (hard structural rule)
+- `--signal #ff5a36` (live/status) · `--signal-cool #3558e8` (secondary interaction) · `--signal-lime #b8d936` (filter state)
 
 **Dark (hard invert):**
 - `--bg #0a0a0a` · `--ink #fafafa` · `--muted #8a8a8a`
@@ -40,7 +41,7 @@ All faces are free and self-hostable. Kept deliberately distinct from Benja's ot
 
 - **Default:** follow `prefers-color-scheme`; light as fallback. Manual toggle available.
 - **No gradients, no shadows, no warm cream.** (Supersedes the V1 warm-paper/brick palette.)
-- Links / active states / "signal" elements use ink (often via underline, weight, or a filled block), never a hue.
+- Links / active states remain mostly ink; hues are reserved for small signal details, never full-page decoration.
 
 ## Spacing
 - **Base unit:** 8px. Editorial rhythm may override rigid component spacing.

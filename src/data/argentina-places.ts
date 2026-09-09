@@ -24,6 +24,7 @@ export const argentinaPlaces: ArgPlace[] = [
   { name: 'La Pampa', location: [-36.62, -64.29] }, // Santa Rosa
   { name: 'Bariloche', location: [-41.13, -71.31] },
   { name: 'El Bolsón', location: [-41.96, -71.53] },
+  { name: 'Ushuaia', location: [-54.8, -68.3] },
   { name: 'Rosario', location: [-32.95, -60.64] },
   { name: 'Mar del Plata', location: [-38.0, -57.55] },
   { name: 'Pinamar', location: [-37.11, -56.86] },
